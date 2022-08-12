@@ -6,15 +6,13 @@
 //
 
 import UIKit
-import FirebaseAuth
+import Firebase
 
 class ViewController: UIViewController {
 
     @IBOutlet weak var uiView: UIView!
     @IBOutlet weak var email: UITextField!
     @IBOutlet weak var password: UITextField!
-    
-    var iconClick = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,40 +29,30 @@ class ViewController: UIViewController {
     }
     @IBAction func signinTapped(_ sender: UIButton) {
         
-        if email.text == "" {
-            let alert = UIAlertController(title: "Alert", message: "email or password is missing", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
-        } else if password.text == "" {
-            let alert = UIAlertController(title: "Alert", message: "email or password is missing", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
-        } else {
-            let vc = self.storyboard?.instantiateViewController(withIdentifier: "LoginSuccesfullPage") as! HomeViewController
-            self.navigationController?.pushViewController(vc, animated: true)
+        if let email = email.text, let password = password.text {
+            Auth.auth().signIn(withEmail: email, password: password) { /*[weak self]*/ authResult, error in
+                /*guard let strongSelf = self else { return }*/
+                
+                if let e = error {
+                    print(e.localizedDescription)
+                } else {
+                    self.performSegue(withIdentifier: "SigninToHome", sender: self)
+                }
+            }
         }
-        
     }
     
     @IBAction func signUpTapped(_ sender: UIButton) {
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "SignUp") as! SignUpViewController
-        self.navigationController?.pushViewController(vc, animated: true)
+        performSegue(withIdentifier: "SigninToSignup", sender: self)
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-
-    }
-    @IBAction func eyeTapped(_ sender: UIButton) {
-        
-        if (iconClick == true ) {
-            password.isSecureTextEntry = true
-        } else {
-            password.isSecureTextEntry = false
+    func showAlert(message: String) {
+        if email.text == "" && password.text == "" {
+            let ac = UIAlertController(title: "Incorrect", message: message, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+            
+            present(ac, animated: true, completion: nil)
         }
-        
-        iconClick = !iconClick
     }
-    
 }
 

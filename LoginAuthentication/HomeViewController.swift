@@ -6,18 +6,24 @@
 //
 
 import UIKit
+import Firebase
 
 class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationController?.isNavigationBarHidden = true
+        navigationItem.hidesBackButton = true
     }
 
     @IBAction func logOutTapped(_ sender: UIButton) {
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "LoginPage") as! ViewController
-        vc.navigationController?.pushViewController(vc, animated: true)
+        let firebaseAuth = Auth.auth()
+        do {
+          try firebaseAuth.signOut()
+            navigationController?.popToRootViewController(animated: true)
+        } catch let signOutError as NSError {
+          print("Error signing out: %@", signOutError)
+        }
     }
     
 }
